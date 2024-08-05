@@ -669,6 +669,9 @@ polygon.proportion:hover {
 .plot .settings-menu a:hover, .plot .data-menu a {
 	background: #f5f5f5;
 }
+.plot [data-action="export"] {
+	font-size: 20px;
+}
 .plot .legend-hover {
 	top: 5px;
 	right: -140px;
