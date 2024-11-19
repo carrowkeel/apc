@@ -103,9 +103,10 @@ export const listIDBTable = (db_key, table) => new Promise(async (resolve, rejec
 		if (cursor) {
 			keys.push(cursor.value.key);
 			cursor.continue();
+		} else {
+			resolve(keys);
+			db.close();
 		}
-		resolve(keys);
-		db.close();
 	};
 	request.onerror = (e) => {
 		reject('Error listing keys: ', e.target.error);
