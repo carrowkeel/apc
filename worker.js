@@ -3,6 +3,34 @@
 importScripts('/pyodide/dist/pyodide.js');
 const generateID = (k=8) => Array(k).fill(0).map(() => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 62))).join('');
 
+const get_python_imported_libraries = (script_text) => {
+	const import_regex = /^\s*(?:from\s+([^\s]+)\s+)?import\s+([^\n;]+)/gm;
+	const imports = new Set();
+	let match;
+	while ((match = import_regex.exec(script_text)) !== null) {
+		if (match[1]) {
+			const module_name = match[1].split('.')[0];
+			imports.add(module_name);
+		} else {
+			const modules_part = match[2];
+			const modules = modules_part
+				.split(',')
+				.map((s) => s.trim().split(/\s+as\s+/)[0].split('.')[0]);
+			modules.forEach((module) => imports.add(module));
+		}
+	}
+	return Array.from(imports);
+};
+
+const saveBase64Image = async (base64_data) => {
+	const cache_id = generateID();
+	const image_uri = `/analyses/plot_${cache_id}.png`;
+	const blob = new Blob([Uint8Array.from(atob(base64_data), c => c.charCodeAt(0))], { type: 'image/png' });
+	const cache = await caches.open('apc_cache');
+	await cache.put(new Request(image_uri), new Response(blob, { headers: { 'Content-Type': 'image/png' }}));
+	return image_uri;
+};
+
 const deployToWorker = (queue, worker_id, request, params, request_id=generateID()) => new Promise(resolve => {
 	queue[worker_id][2] += 1;
 	queue[worker_id][1].postMessage({request_id, type: 'sub_request', script_uri: request.script_uri, framework: request.framework, function_name: request.function_name, params});
@@ -40,10 +68,11 @@ const runPyScript = async (request, queue, function_name='run', cache={}) => {
 		await cache.pyodide.loadPackage(['numpy'], {messageCallback: () => {}, errorCallback: () => {}});
 	}
 	const js_module = {
-		distribute: async (function_name, params) => {
+		distribute: async (function_name, param_set) => {
 			const sub_request = Object.assign({}, request, {function_name});
-			const result = await distributedRun(queue, sub_request, params.toJs({dict_converter: it => Object.fromEntries(it)}));
-			return cache.pyodide.toPy(result);
+			const param_set_js = param_set.toJs({dict_converter: it => Object.fromEntries(it)});
+			const results = await Promise.all(param_set_js.map(params => distributedRun(queue, sub_request, params)));
+			return cache.pyodide.toPy(results);
 		},
 		message: message_py => {
 			const message = message_py.toJs({dict_converter: it => Object.fromEntries(it)});
@@ -69,12 +98,24 @@ const runPyScript = async (request, queue, function_name='run', cache={}) => {
 		const script_text = await fetch(request.script_uri).then(res => res.text());
 		cache.scripts[request.script_uri] = script_text;
 	}
-	await cache.pyodide.runPythonAsync(`import asyncio\nfrom ${js_module_name} import distribute, message, increment_step\n\n${cache.scripts[request.script_uri]}\n\noutput=await ${function_name}(params)`);
-	const outputPr = cache.pyodide.globals.get('output');
-	const result = outputPr?.toJs ? outputPr.toJs({dict_converter: it => Object.fromEntries(it)}) : outputPr;
-	outputPr?.destroy ? outputPr.destroy() : 0;
+	const imported_libraries = request.libraries !== undefined ? request.libraries.split(',') : get_python_imported_libraries(cache.scripts[request.script_uri]);
+	if (imported_libraries.length > 0)
+		await cache.pyodide.loadPackage(imported_libraries, {messageCallback: () => {}, errorCallback: () => {}}); // Will throw exception if libraries are not in pyodide
+	await cache.pyodide.runPythonAsync(`import asyncio\nfrom ${js_module_name} import distribute, message, increment_step`);
+	if (imported_libraries.includes('matplotlib'))
+		await cache.pyodide.runPythonAsync(`import os\nos.environ['MPLBACKEND'] = 'AGG'\nimport matplotlib.pyplot as plt\nimport io\nimport base64\nsaved_images = []\n\ndef save_image():\n\timage_bytes = io.BytesIO()\n\tplt.savefig(image_bytes, format='png')\n\tplt.close()\n\timage_bytes.seek(0)\n\tsaved_images.append(base64.b64encode(image_bytes.read()).decode('utf-8'))\n\timage_bytes.close()\n\nplt.show = save_image`);
+	await cache.pyodide.runPythonAsync(`${cache.scripts[request.script_uri]}\n\noutput=await ${function_name}(params)`);
+	const output_proxy = cache.pyodide.globals.get('output');
+	const saved_images_proxy = cache.pyodide.globals.get('saved_images');
+	const result = output_proxy?.toJs ? output_proxy.toJs({dict_converter: it => Object.fromEntries(it)}) : output_proxy;
+	const saved_images = saved_images_proxy?.toJs ? saved_images_proxy.toJs({dict_converter: it => Object.fromEntries(it)}) : saved_images_proxy;
+	output_proxy?.destroy ? output_proxy.destroy() : 0;
+	saved_images_proxy?.destroy ? saved_images_proxy.destroy() : 0;
 	cache.pyodide.unregisterJsModule(js_module_name);
-	return result;
+	if (saved_images && saved_images.length > 0)
+		return Promise.all(saved_images.map(saveBase64Image));
+	else
+		return result;
 };
 
 const runJSScript = async (request, queue, function_name='run') => {
@@ -104,7 +145,6 @@ const processRequest = async (request, queue, cache) => {
 				return await runJSScript(request, queue, request.function_name);
 		}
 	} catch (e) {
-		console.log(e);
 		self.postMessage({request_id: request.request_id, type: 'error', error: e});
 	}
 };
