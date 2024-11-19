@@ -101,12 +101,13 @@ export const updatePlots = (container, plots, data, update_axis=false) => {
 				});
 				break;
 			case plot.data !== undefined:
-				const data_parameters = plot.data.split(',');
-				for (const data_parameter of data_parameters)
-					if (data[0][data_parameter] === undefined)
-						throw `Parameter ${data_parameter} not found in model output`;
-				const plot_data = data_parameters.map(prop => data[data.length - 1][prop]);
-				draw_plot[plot.type](draw_elem, plot_data, 0);
+				draw_elem.clear();
+				plot.data.split(',').forEach((data_parameter, i) => {
+					if (data[data.length - 1][data_parameter] === undefined)
+						throw `Failed to draw plot ${plot.label}: data parameter ${data_parameter} not found in model output`;
+					const plot_data = data[data.length - 1][data_parameter];
+					draw_plot[plot.type](draw_elem, plot_data, i);
+				});
 				break;
 			case plot.function !== undefined:
 				draw_plot[plot.type](draw_elem, data);
@@ -119,14 +120,10 @@ export const updatePlots = (container, plots, data, update_axis=false) => {
 
 export const draw_plot = {
 	scatter: (draw, points, i, r=5, opacity=0.5) => {
-		draw.clear();
 		points.forEach(point => draw.point(point, color_cycle[i], r, point[2] !== undefined ? point[2] : opacity));
 	},
 	line: (draw, line, i) => {
 		draw.line_x(line, color_cycle[i]);
-	},
-	scatter_plot: (draw, points, i, r=5, opacity=0.5) => {
-		points.forEach(point => draw.point(point, color_cycle[i], r, point[2] !== undefined ? point[2] : opacity));
 	},
 	lines: (draw, lines, i) => {
 		const lines_mean = lines.map(([x, line_y]) => [x, mean(line_y)]);
@@ -144,21 +141,29 @@ export const draw_plot = {
 	},
 	mat: (draw, data, i) => {
 		draw.pre();
-		data.forEach((row, y) => row.forEach((cell, x) => {
-			const color = Array.isArray(cell) ? cell : (typeof cell === 'number' ? [255 * cell, 255 * (1 - cell), 0] : [200, 200, 200]);
+		data.forEach((row, y) => row.forEach((cell_value, x) => {
+			const color = Array.isArray(cell_value) ? cell_value : (typeof cell_value === 'number' ? range(0, 3).map(rgb_i => color_cycle[i][rgb_i] + (color_cycle[i + 1][rgb_i] - color_cycle[i][rgb_i]) * cell_value) : [200, 200, 200]);
+			draw.normed_rect([x / data[0].length, (data.length - y - 1) / data.length, 1 / data[0].length, 1 / data.length], color);
+		}));
+		draw.post();
+	},
+	mat_grayscale: (draw, data, i) => {
+		draw.pre();
+		data.forEach((row, y) => row.forEach((cell_value, x) => {
+			const color = Array.isArray(cell_value) ? cell_value : (typeof cell_value === 'number' ? [255 * cell_value, 255 * cell_value, 255 * cell_value] : [200, 200, 200]);
 			draw.normed_rect([x / data[0].length, (data.length - y - 1) / data.length, 1 / data[0].length, 1 / data.length], color);
 		}));
 		draw.post();
 	},
 	grid: (draw, data, i) => {
 		draw.pre();
-		data[0].forEach(([x, y, value]) => {
-			const color = Array.isArray(value) ? value : (typeof value === 'number' ? [255 * value, 255 * (1 - value), 0]: [200, 200, 200]);
+		data.forEach(([x, y, cell_value]) => {
+			const color = Array.isArray(cell_value) ? cell_value : (typeof cell_value === 'number' ? range(0, 3).map(rgb_i => color_cycle[i][rgb_i] + (color_cycle[i + 1][rgb_i] - color_cycle[i][rgb_i]) * cell_value) : [200, 200, 200]);
 			draw.scaled_rect([x, y, 1, 1], color);
 		});
 		draw.post();
 	},
-	space_2d: (draw, data, i) => {
+	network_plot: (draw, data, i) => {
 		draw.clear();
 		const [nodes, edges] = data;
 		for (const edge of edges)
