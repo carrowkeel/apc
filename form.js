@@ -28,18 +28,21 @@ export const parametersForm = (params) => {
 	}).join('');
 };
 
-const htmlFromFields = (fields) => {
+export const htmlFromFields = (fields, submit_action='submit', submit_label='Submit') => {
 	const field_html = fields.map(field => {
 		switch(field.type) {
 			case 'hidden':
 				return `<input type="hidden" name="${field.name}" value="${field.value || ''}">`;
 			case 'password':
 				return `<div class="field"><label>${field.label}</label><input type="password" name="${field.name}" placeholder="${field.placeholder || field.label}" title="${field.placeholder || field.label}" autocomplete="${field.value || ''}"></div>`;
+			case 'select':
+				const options = field.values.map(value => `<option value="${value}" ${value === field.value ? 'selected' : ''}>${value}</option>`).join('');
+				return `<div class="field"><label>${field.label}</label><select name="${field.name}" title="${field.placeholder || field.label}">${options}</select></div>`;
 			default:
 				return `<div class="field"><label>${field.label}</label><input type="${field.type}" name="${field.name}" placeholder="${field.placeholder || field.label}" title="${field.placeholder || field.label}" value="${field.value || ''}"></div>`;
 		}
 	}).join('');
-	return `<div class="errors"></div><form>${field_html}</form><a class="button" data-action="submit">Submit</a>`;
+	return `<div class="errors"></div><form>${field_html}</form><a class="fright button" data-action="${submit_action}">${submit_label}</a>`;
 };
 
 export const readForm = (form, defaults = {}) => {
