@@ -36,7 +36,10 @@ export const stddev = arr => Math.pow(vcomp(Array(arr.length).fill(-mean(arr)),a
 export const unique = arr => arr.length === 0 ? [] : Object.keys(arr.reduce((a,v)=>Object.assign(a, {[v]: 1}), {}));
 export const generateID = (k=8) => Array(k).fill(0).map(() => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 62))).join('');
 
-export const replaceStrings = obj => Object.entries(obj).forEach(([prop, value]) => document.querySelectorAll(`[data-content="${prop}"]`).forEach(elem => elem.value !== undefined ? elem.value = value : elem.innerHTML = value));
+export const replaceStrings = obj => {
+	Object.entries(obj).forEach(([prop, value]) => document.querySelectorAll(`[data-content="${prop}"]`).forEach(elem => elem.value !== undefined ? elem.value = value : elem.innerHTML = value));
+	Object.entries(obj).forEach(([prop, value]) => document.querySelectorAll(`[data-href="${prop}"]`).forEach(elem => value.startsWith('/') ? elem.href = value : elem.href = elem.href + value));
+};
 
 export const shortNotation = (n) => {
 	if (n === 0 || (n < 1000 && n >= 0.01))
@@ -59,6 +62,25 @@ export const toCSV = (filename, data) => {
 	elem.click();
 	elem.remove();
 };
+
+export const confirmBox = (title, text, container=document.body) => new Promise(resolve => {
+	const box = document.createElement('div');
+	box.classList.add('popup', 'message');
+	box.innerHTML = `<div class="header"><a data-icon="x" data-action="close" class="right"></a>${title}</div><div class="text"><p>${text}</p></div><div class="actions"><a class="button" data-action="confirm">Confirm</a><a class="button" data-action="cancel">Cancel</a></div>`;
+	container.appendChild(box);
+	box.querySelector('[data-action="confirm"]').addEventListener('click', () => {
+		box.remove();
+		resolve(1);
+	});
+	box.querySelector('[data-action="cancel"]').addEventListener('click', () => {
+		box.remove();
+		resolve(0);
+	});
+	box.querySelector('[data-action="close"]').addEventListener('click', () => {
+		box.remove();
+		resolve(0);
+	});
+});
 
 export const errorBox = (title, text, container=document.body) => {
 	const box = document.createElement('div');
