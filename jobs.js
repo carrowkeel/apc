@@ -37,7 +37,7 @@ export const attachWorker = async (elem) => {
 		const request = e.data;
 		switch (true) {
 			case request.type === 'error':
-				elem.dispatchEvent(new CustomEvent('error', {detail: {error: request.error}}));
+				elem.dispatchEvent(new CustomEvent('worker_error', {detail: request}));
 				break;
 			default:
 				elem.dispatchEvent(new CustomEvent('worker_response', {detail: request}));
@@ -47,6 +47,9 @@ export const attachWorker = async (elem) => {
 		elem.dispatchEvent(new CustomEvent('error', {detail: {error: e.message}}));
 	});
 	elem.addEventListener('worker_terminate', e => {
+		worker.terminate();
+	});
+	window.addEventListener('beforeunload', e => {
 		worker.terminate();
 	});
 };
@@ -60,18 +63,4 @@ export const collect = async (result) => {
 		parts.push(result_part);
 	}
 	return parts;
-};
-
-export const distribute = async (jobs, workers = [], result_id = generateID()) => {
-	const requests = await Promise.all(jobs.map(job => {
-		if (job.subsets !== undefined && job.subsets.flat(Infinity).length === 0)
-			return {job_id: false};
-		switch(true) {
-			case job.bed_prefix.startsWith('/public/'):
-				return deployToAWS(job);
-			default:
-				return deployToWorker(workers, job);
-		}
-	}));
-	return {result_id, jobs: requests, time: Math.round(new Date().getTime() / 1000)};
 };
