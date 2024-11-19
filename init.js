@@ -49,10 +49,16 @@ const main = async () => {
 		console.log('Failed to load Service Worker');
 	}
 	await import('/apc/common.js').then(module => addHooks(window, module.hooks));
-	document.querySelectorAll('[data-module]').forEach(module_elem => {
+	document.body.classList.add('loading');
+	await Promise.all(Array.from(document.querySelectorAll('[data-module]')).map(async module_elem => {
 		const module_name = module_elem.dataset.module;
-		import(`/${module_name}.js`).then(module => module.init(module_elem));
-	});
+		try {
+			await import(`/${module_name}.js`).then(module => module.init(module_elem));
+		} catch (e) {
+			console.log(`Failed to initialize model ${module_name}`);
+		}
+	}));
+	document.body.classList.remove('loading');
 };
 
 window.addEventListener('load', () => {
