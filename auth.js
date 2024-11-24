@@ -8,10 +8,17 @@ const hooks = elem => [
 				return;
 			form.querySelector('[data-action="submit"]').classList.add('loading');
 			try {
+				if (form_data['user_name'] === '')
+					throw 'Nickname cannot be empty';
+				if (form_data['user_password'] === '')
+					throw 'Password cannot be empty';
+				if (form_data['validate_password'] !== undefined && (form_data['user_password'] !== form_data['validate_password']))
+					throw 'Passwords do not match';
 				const response = await fetch('https://d.modelrxiv.org/auth', {method: 'POST', body: JSON.stringify(form_data)});
 				if (!response.ok)
-					throw 'Authentication failed';
+					throw (form_data['action'] === 'register' ? 'Failed to register your nickname' : 'Authentication failed');
 				if (form_data['action'] === 'register') {
+					form.querySelector('[data-action="submit"]').classList.remove('loading');
 					return formNotice(form, 'Successfully registered. You can now use the credentials you created to login.');
 				}
 				const {data: credentials} = await response.json();
@@ -23,9 +30,9 @@ const hooks = elem => [
 			} catch (e) {
 				form.querySelector('[data-action="submit"]').classList.remove('loading');
 				if (form_data['action'] === 'register')
-					formError(form, 'Failed to register');
+					formError(form, e);
 				else
-					formError(form, 'Failed to authenticate');
+					formError(form, e);
 			}
 		};
 		addPopup(document.body, 'Login / Register', [
