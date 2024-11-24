@@ -30,19 +30,10 @@
 	0% { background-color: #eee; }
 	100% { background-color: transparent; }
 }
-@keyframes colorFade {
-	0%, 100% {
-		background-color: #007bff;
-	}
-	25% {
-		background-color: #ff5733;
-	}
-	50% {
-		background-color: #4caf50;
-	}
-	75% {
-		background-color: #ffc107;
-	}
+@keyframes flash-button {
+	0% { background-color: #737da3; }
+	10% { background-color: #96c181; }
+	100% { background-color: #737da3; }
 }
 @keyframes move-background {
 	0% {
@@ -850,6 +841,11 @@ polygon.proportion:hover {
 [data-module="model"] .authors {
 	font-size: 14px;
 }
+[data-module="model"] .keywords {
+	margin: 5px 0;
+	font-size: 14px;
+	color: #555;
+}
 [data-module="model"] .authors:empty {
 	display: none;
 }
@@ -859,7 +855,7 @@ polygon.proportion:hover {
 }
 [data-module="model"] .description {
 	font-size: 14px;
-	margin: 10px 0 15px;
+	margin: 5px 0 15px;
 }
 .test-overlay {
 	position: absolute;
@@ -1083,7 +1079,7 @@ polygon.proportion:hover {
 	background: #e5e5e5;
 }
 .versions a.selected[data-status="error"] {
-	background: #ba000033;
+	background: #a3212033;
 }
 .versions a.selected[data-status="success"] {
 	background: #00ba0033;
@@ -1092,7 +1088,7 @@ polygon.proportion:hover {
 	content: '\2718';
 	float: right;
 	font-size: 16px;
-	color: #ba0000;
+	color: #a32120;
 }
 .versions a[data-status="success"]:before {
 	content: '\2714';
@@ -1173,6 +1169,12 @@ polygon.proportion:hover {
 	min-height: 100px;
 	background: #fff;
 }
+.section .header [data-action="convert-code"] {
+	display: none;
+}
+.section.hidden .header [data-action="convert-code"] {
+	display: block;
+}
 .section.hidden .content {
 	display: none;
 }
@@ -1187,6 +1189,9 @@ polygon.proportion:hover {
 	line-height: 32px;
 	margin: 0;
 	cursor: pointer;
+}
+.vertical-scroll-gap {
+	height: 300px;
 }
 .toc {
 	position: sticky;
@@ -1232,6 +1237,10 @@ polygon.proportion:hover {
 	float: left;
 	width: 75%;
 }
+h2 a[data-icon]:before {
+	float: left;
+	margin-right: 5px;
+}
 .tutorial p {
 	line-height: 1.7;
 	margin-bottom: 25px;
@@ -1240,7 +1249,7 @@ polygon.proportion:hover {
 .tutorial p:is(:has(+ ul), :has(+ ol)) {
 	margin-bottom: 15px;
 }
-.tutorial .screenshot + h2, .tutorial .screenshot + h3, .tutorial .screenshot + h4 {
+.tutorial .screenshot + h2, .tutorial .screenshot + h3, .tutorial .screenshot + h4, .tutorial .code-example + h2, .tutorial .code-example + h3, .tutorial .code-example + h4 {
 	margin-top: 30px;
 }
 .tutorial ul, .tutorial ol {
@@ -1281,6 +1290,17 @@ polygon.proportion:hover {
 }
 .code-example .screenshot {
 	display: none;
+	padding: 0;
+	box-shadow: none;
+	border: 0;
+	background: none;
+	text-align: center;
+}
+.code-example.show-screenshot .screenshot {
+	display: block;
+}
+.code-example.show-screenshot pre {
+	display: none;
 }
 .code-example [data-action="show-screenshot"] {
 	font-size: 12px;
@@ -1300,7 +1320,7 @@ polygon.proportion:hover {
 .code-error-box, .llm-response-box {
 	background: #eee;
 	font-size: 14px;
-	border: 1px solid #e39494;
+	border: 1px solid #a32120;
 	padding: 8px 13px;
 	color: #333;
 	border-radius: 5px;
@@ -1509,6 +1529,7 @@ h2 a.tag {
 	border-radius: 4px;
 	transition: opacity ease 0.5s;
 	box-shadow: 1px 1px 7px rgba(0, 0, 0, 0.2);
+	user-select: none;
 }
 .button.small {
 	font-size: 14px;
@@ -1524,6 +1545,9 @@ h2 a.tag {
 	background-size: 2000% auto;
 	text-shadow: 1px 1px rgba(0, 0, 0, 0.5);
 	border: 1px solid #eee;
+}
+.button.success {
+	animation: flash-button 1s ease-out;
 }
 .button:before {
 	margin-right: 3px;
