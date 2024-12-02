@@ -35,12 +35,15 @@
 	10% { background-color: #96c181; }
 	100% { background-color: #737da3; }
 }
-@keyframes move-background {
-	0% {
-		background-position: 0 0;
+@keyframes pulse-background {
+	50% { background-color: #f903; }
+}
+ @keyframes hueRotate {
+	0%, 100% {
+		filter: hue-rotate(0deg);
 	}
-	100% {
-		background-position: 100% 100%;
+	50% {
+		filter: hue-rotate(90deg);
 	}
 }
 :root {
@@ -55,7 +58,7 @@
 	--color-cycle-9: rgb(188,189,34);
 	--color-cycle-10: rgb(23,190,207);
 }
-[data-icon]:before {
+[data-icon]::before {
 	display: inline-block;
 	font-family: icons;
 	content: attr(data-icon);
@@ -145,7 +148,7 @@ sub {
 .tabbed-content [data-tab-content].selected {
 	display: block;
 }
-.tabbed-content [data-tab-content]:empty:before {
+.tabbed-content [data-tab-content]:empty::before {
 	display: block;
 	content: 'No data to show';
 	text-align: center;
@@ -185,7 +188,7 @@ header nav>a, header nav [data-auth] a {
 	font-size: 16px;
 	float: left;
 }
-header nav>a:before, header nav [data-auth] a:before {
+header nav>a::before, header nav [data-auth] a::before {
 	float: left;
 	font-size: 20px;
 	margin-right: 5px;
@@ -197,7 +200,7 @@ a.logo {
 	text-decoration: none;
 	float: left;
 }
-.logo:before {
+.logo::before {
 	float: left;
 	font-size: 27px;
 	margin-right: 7px;
@@ -235,10 +238,10 @@ a.logo {
 .controls>a:hover, .menu .tabs>[data-tab]:hover {
 	background: #eee;
 }
-[data-module="model"].running [data-action="start"]:before {
+[data-module="model"].running [data-action="start"]::before {
 	content: 'p';
 }
-[data-module="model"].running.paused [data-action="start"]:before {
+[data-module="model"].running.paused [data-action="start"]::before {
 	content: 'r';
 }
 .controls>a.selected {
@@ -247,7 +250,7 @@ a.logo {
 .menu .tabs>[data-tab].selected {
 	background: #ddd;
 }
-.controls>a[data-icon]:before {
+.controls>a[data-icon]::before {
 	margin-right: 4px;
 	font-size: 13px;
 }
@@ -266,7 +269,7 @@ a.logo {
 .user-menu .disabled {
 	background: #eee;
 }
-.user-menu .name:before {
+.user-menu .name::before {
 	font-family: 'icons';
 	font-size: 18px;
 	float: left;
@@ -316,7 +319,7 @@ a.logo {
 [data-job] .progress [data-progress] {
 	background: rgba(74, 137, 191, 1);
 }
-[data-job] .progress [data-progress]:before {
+[data-job] .progress [data-progress]::before {
 	content: attr(data-progress);
 	text-align: center;
 	position: absolute;
@@ -347,7 +350,7 @@ a.logo {
 	background: #eee;
 	font-size: 15px;
 }
-.user-menu .state-change a:before {
+.user-menu .state-change a::before {
 	margin-right: 6px;
 	font-size: 18px;
 	float: left;
@@ -436,31 +439,6 @@ a[data-tag] {
 	display: inline-block;
 	margin-right: 5px;
 }
-/*
-a[data-tag]:before {
-	display: inline-block;
-	font-family: icons;
-	border: 2px solid #555;
-	padding: 2px;
-	font-size: 24px;
-	border-radius: 24px;
-}
-a[data-tag="type:ibm"]:before {
-	content: '7';
-}
-a[data-tag="spatial:discrete"]:before {
-	content: '5';
-}
-a[data-tag="spatial:continuous"]:before {
-	content: '6';
-}
-a[data-tag="individuals:discrete"]:before {
-	content: '3';
-}
-a[data-tag="type:popgen"]:before {
-	content: '4';
-}
-*/
 canvas.grid {
 	position: absolute;
 	z-index: 1;
@@ -470,7 +448,7 @@ canvas.dynamic {
 	z-index: 2;
 	background transparent;
 }
-[data-empty]:empty:before {
+[data-empty]:empty::before {
 	content: attr(data-empty);
 	display: block;
 	padding: 100px 0;
@@ -554,34 +532,34 @@ polygon.proportion:hover {
 .plot:not(:last-child) [data-plot="hist_2d"] {
 	display: none;
 }
-.plot .legend a:nth-child(1):before {
+.plot .legend a:nth-child(1)::before {
 	background: var(--color-cycle-1);
 }
-.plot .legend a:nth-child(2):before {
+.plot .legend a:nth-child(2)::before {
 	background: var(--color-cycle-2);
 }
 .plot .legend a:nth-child(3):before {
 	background: var(--color-cycle-3);
 }
-.plot .legend a:nth-child(4):before {
+.plot .legend a:nth-child(4)::before {
 	background: var(--color-cycle-4);
 }
-.plot .legend a:nth-child(5):before {
+.plot .legend a:nth-child(5)::before {
 	background: var(--color-cycle-5);
 }
-.plot .legend a:nth-child(6):before {
+.plot .legend a:nth-child(6)::before {
 	background: var(--color-cycle-6);
 }
-.plot .legend a:nth-child(7):before {
+.plot .legend a:nth-child(7)::before {
 	background: var(--color-cycle-7);
 }
-.plot .legend a:nth-child(8):before {
+.plot .legend a:nth-child(8)::before {
 	background: var(--color-cycle-8);
 }
-.plot .legend a:nth-child(9):before {
+.plot .legend a:nth-child(9)::before {
 	background: var(--color-cycle-9);
 }
-.plot .legend a:nth-child(10):before {
+.plot .legend a:nth-child(10)::before {
 	background: var(--color-cycle-10);
 }
 .plot:nth-child(1) [data-plot^="line"] polyline {
@@ -723,7 +701,7 @@ polygon.proportion:hover {
 	border-radius: 10px;
 	border: 1px solid #ba0000;
 }
-.plot .crosshair:before {
+.plot .crosshair::before {
 	content: '';
 	position: absolute;
 	width: 17px;
@@ -732,7 +710,7 @@ polygon.proportion:hover {
 	left: -6px;
 	top: 2px;
 }
-.plot .crosshair:after {
+.plot .crosshair::after {
 	content: '';
 	position: absolute;
 	width: 1px;
@@ -761,7 +739,7 @@ polygon.proportion:hover {
 	display: block;
 	white-space: nowrap;
 }
-.plot .legend a:before {
+.plot .legend a::before {
 	content: '';
 	padding: 0 8px;
 	background: #eee;
@@ -788,7 +766,7 @@ polygon.proportion:hover {
 	font-size: 14px;
 	line-height: 1;
 }
-.axis-tick.editable:before {
+.axis-tick.editable::before {
 	content: '';
 	position: absolute;
 	top: -3px;
@@ -890,7 +868,7 @@ polygon.proportion:hover {
 .parameters-menu .form {
 	padding: 10px 12px;
 }
-.parameters-menu:before {
+.parameters-menu::before {
 	content: '';
 	position: absolute;
 	left: -20px;
@@ -955,20 +933,20 @@ polygon.proportion:hover {
 	flex: 1;
 	padding-right: 15px;
 }
-.preset a:before {
+.preset a::before {
 	font-family: icons;
 	margin-right: 5px;
 }
-.preset a[data-type="dynamics"]:before {
+.preset a[data-type="dynamics"]::before {
 	content: 'g';
 }
-.preset a[data-type="grid"]:before {
+.preset a[data-type="grid"]::before {
 	content: 'G';
 }
 .preset pre {
 	flex: 1;
 }
-.preset[data-type="analysis"] a:after {
+.preset[data-type="analysis"] a::after {
 	content: 'Analysis';
 	position: absolute;
 	right: 0;
@@ -982,9 +960,7 @@ polygon.proportion:hover {
 	opacity: 0.8;
 }
 .preset[data-type="analysis"].running {
-	background: repeating-linear-gradient(135deg,  #eee,  #eee 10px,  #fff 10px,  #fff 20px);
-	background-size: 2000% auto;
-	animation: move-background 60s linear infinite;
+	animation: pulse-background 2s linear infinite;
 	cursor: wait;
 }
 .preset[data-type="analysis"].running a {
@@ -1084,13 +1060,13 @@ polygon.proportion:hover {
 .versions a.selected[data-status="success"] {
 	background: #00ba0033;
 }
-.versions a[data-status="error"]:before {
+.versions a[data-status="error"]::before {
 	content: '\2718';
 	float: right;
 	font-size: 16px;
 	color: #a32120;
 }
-.versions a[data-status="success"]:before {
+.versions a[data-status="success"]::before {
 	content: '\2714';
 	float: right;
 	font-size: 16px;
@@ -1237,7 +1213,7 @@ polygon.proportion:hover {
 	float: left;
 	width: 75%;
 }
-h2 a[data-icon]:before {
+h2 a[data-icon]::before {
 	float: left;
 	margin-right: 5px;
 }
@@ -1309,7 +1285,7 @@ h2 a[data-icon]:before {
 	top: 5px;
 	right: 10px;
 }
-.code-example:before {
+.code-example::before {
 	content: attr(data-type);
 	position: relative;
 	top: -5px;
@@ -1344,7 +1320,7 @@ h2 a[data-icon]:before {
 .code-error-box:empty, .llm-response-box:empty {
 	display: none;
 }
-.code-error-box:before {
+.code-error-box::before {
 	content: attr(data-status);
 	position: relative;
 	top: -5px;
@@ -1527,7 +1503,7 @@ h2 a.tag {
 	line-height: 24px;
 	margin-left: 3px;
 	border-radius: 4px;
-	transition: opacity ease 0.5s;
+	transition: all ease 0.5s;
 	box-shadow: 1px 1px 7px rgba(0, 0, 0, 0.2);
 	user-select: none;
 }
@@ -1540,16 +1516,14 @@ h2 a.tag {
 }
 .button.loading {
 	cursor: wait;
-	animation: move-background 60s linear infinite;
-	background: repeating-linear-gradient(135deg, #737da3, #737da3 10px, #737da3aa 10px, #737da3aa 20px);
-	background-size: 2000% auto;
+	animation: hueRotate 2s ease-in-out infinite;
 	text-shadow: 1px 1px rgba(0, 0, 0, 0.5);
 	border: 1px solid #eee;
 }
 .button.success {
 	animation: flash-button 1s ease-out;
 }
-.button:before {
+.button::before {
 	margin-right: 3px;
 	font-size: 22px;
 	float: left;
@@ -1611,7 +1585,7 @@ h2 a.tag {
 .form p {
 	font-size: 16px;
 }
-.form.loading:before {
+.form.loading::before {
 	content: '';
 	position: absolute;
 	z-index: 100;
@@ -1678,12 +1652,21 @@ h2 a.tag {
 	background: #fff;
 	padding: 5px;
 }
-.editor textarea.loading {
+.code.loading::before {
+	content: 'Generating your code...';
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
 	cursor: wait;
-	position: relative;
-	background: repeating-linear-gradient(135deg, #fafafa, #fafafa 10px, #f5f5f5 10px, #f5f5f5 20px);
-	background-size: 2000% auto;
-	animation: move-background 300s linear infinite;
+	background: rgba(255, 255, 255, 0.5);
+	color: #333;
+	z-index: 100;
 }
 .editor textarea[name="code_display"] {
 	line-height: 1.6;
@@ -1805,7 +1788,7 @@ footer .col>a {
 		right: 0;
 		top: 45px;
 	}
-	[data-module="model"] .parameters-menu:before {
+	[data-module="model"] .parameters-menu::before {
 		left: auto;
 		right: 2px;
 		top: -20px;
